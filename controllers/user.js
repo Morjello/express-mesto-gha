@@ -19,29 +19,35 @@ const getUsers = (req, res, next) => {
 const getUserId = (req, res, next) => {
   const user = req.params.userId;
   User.findById(user)
-    .then((user) => res.status(200).send(user))
-    .catch((err) => {
+    .then((user) => {
       if (!user) {
-        next(new NotFoundError("Пользователь по указанному id не найден."));
-        return;
+        return res.status(404).send({
+          message: "Пользователь по указанному _id не найден.",
+        });
+      }
+      res.status(200).send(user);
+    })
+    .catch((err) => {
+      if (err.name === "ValidationError") {
+        return res.status(400).send({
+          message: "Переданы некорректные данные пользователя.",
+        });
       }
       next(err);
     });
 };
 
 const createUser = (req, res, next) => {
+  const _id = req.user._id;
   const { name, about, avatar } = req.body;
 
   User.create({ name, about, avatar })
-    .then((user) => res.status(200).send({ name, about, avatar }))
+    .then(() => res.status(200).send({ name, about, avatar, _id }))
     .catch((err) => {
       if (err.name === "ValidationError") {
-        next(
-          new ValidationError(
-            "Переданы некорректные данные при создании пользователя."
-          )
-        );
-        return;
+        return res.status(400).send({
+          message: "Переданы некорректные данные при создании пользователя.",
+        });
       }
       next(
         new Error(`Произошла неизвестная ошибка ${err.name}: ${err.message}`)

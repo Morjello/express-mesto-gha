@@ -23,12 +23,9 @@ const createCard = (req, res, next) => {
     .then(() => res.status(200).send({ name, link, owner }))
     .catch((err) => {
       if (err.name === "ValidationError") {
-        next(
-          new ValidationError(
-            "Переданы некорректные данные при создании карточки."
-          )
-        );
-        return;
+        return res.status(400).send({
+          message: "Переданы некорректные данные при создании карточки.",
+        });
       }
       next(
         new Error(`Произошла неизвестная ошибка ${err.name}: ${err.message}`)
