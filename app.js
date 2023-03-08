@@ -15,6 +15,13 @@ mongoose.set("strictQuery", false);
 
 app.use(express.static(path.join(__dirname, "public")));
 app.use(bodyParse.json());
+app.use((req, res, next) => {
+  req.user = {
+    _id: "6401c79538604683da14a7a9",
+  };
+
+  next();
+});
 app.use(routes);
 
 app.listen(PORT, () => {
