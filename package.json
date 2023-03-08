@@ -1,0 +1,33 @@
+{
+  "name": "express-mesto",
+  "version": "1.0.0",
+  "description": "mesto",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node app.js",
+    "dev": "nodemon app.js",
+    "lint": "npx eslint"
+  },
+  "keywords": [],
+  "author": "morjello",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.20.2",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-plugin-import": "^2.27.5",
+    "express": "^4.18.2",
+    "mongoose": "^6.10.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.20"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Morjello/express-mesto-gha.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Morjello/express-mesto-gha/issues"
+  },
+  "homepage": "https://github.com/Morjello/express-mesto-gha#readme"
+}
