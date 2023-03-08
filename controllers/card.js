@@ -37,8 +37,9 @@ const deleteCard = (req, res, next) => {
   Card.findById(req.params.cardId)
     .then((card) => {
       if (!card) {
-        next(new NotFoundError("Карточка с указанным id не найдена."));
-        return;
+        return res.status(404).send({
+          message: "Карточка с указанным id не найдена.",
+        });
       }
       card.delete();
       res.status(200).send(card);
@@ -56,19 +57,17 @@ const likeCard = (req, res, next) => {
   )
     .then((like) => {
       if (!like) {
-        next(new NotFoundError("Передан несуществующий id карточки."));
-        return;
+        return res.status(404).send({
+          message: "Передан несуществующий id карточки.",
+        });
       }
       res.status(200).send(like);
     })
     .catch((err) => {
       if (err.name === "ValidationError") {
-        next(
-          new ValidationError(
-            "Переданы некорректные данные для постановки лайка. "
-          )
-        );
-        return;
+        return res.status(400).send({
+          message: "Переданы некорректные данные для постановки лайка.",
+        });
       }
       next(
         new Error(`Произошла неизвестная ошибка ${err.name}: ${err.message}`)
@@ -82,17 +81,19 @@ const dislikeCard = (req, res, next) => {
     { $pull: { likes: req.user._id } },
     { new: true }
   )
-    .then((like) => res.status(200).send(like))
+    .then((like) => {
+      if (!like) {
+        return res.status(404).send({
+          message: "Передан несуществующий id карточки.",
+        });
+      }
+      res.status(200).send(like);
+    })
     .catch((err) => {
       if (err.name === "ValidationError") {
-        next(
-          new ValidationError("Переданы некорректные данные для снятии лайка. ")
-        );
-        return;
-      }
-      if (err.name === "NotFoundError") {
-        next(new NotFoundError("Передан несуществующий id карточки."));
-        return;
+        return res.status(400).send({
+          message: "Переданы некорректные данные для снятии лайка.",
+        });
       }
       next(
         new Error(`Произошла неизвестная ошибка ${err.name}: ${err.message}`)

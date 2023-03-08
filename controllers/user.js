@@ -16,7 +16,7 @@ const getUsers = (req, res, next) => {
     });
 };
 
-const getUserId = (req, res, next) => {
+const getUserById = (req, res, next) => {
   const user = req.params.userId;
   User.findById(user)
     .then((user) => {
@@ -59,19 +59,19 @@ const updateUser = (req, res, next) => {
   const owner = req.user._id;
   const { name, about } = req.body;
   User.findByIdAndUpdate(owner, { name, about })
-    .then(() => res.status(200).send({ name, about }))
+    .then(() => {
+      if (!owner) {
+        return res.status(404).send({
+          message: "Пользователь по указанному id не найден.",
+        });
+      }
+      res.status(200).send({ name, about });
+    })
     .catch((err) => {
       if (err.name === "ValidationError") {
-        next(
-          new ValidationError(
-            "Переданы некорректные данные при обновлении профиля."
-          )
-        );
-        return;
-      }
-      if (err.name === "NotFoundError") {
-        next(NotFoundError("Пользователь по указанному id не найден."));
-        return;
+        return res.status(400).send({
+          message: "Переданы некорректные данные при обновлении профиля.",
+        });
       }
       next(
         new Error(`Произошла неизвестная ошибка ${err.name}: ${err.message}`)
@@ -83,19 +83,19 @@ const updateUserAvatar = (req, res, next) => {
   const owner = req.user._id;
   const { avatar } = req.body;
   User.findByIdAndUpdate(owner, { avatar })
-    .then(() => res.status(200).send({ avatar }))
+    .then(() => {
+      if (!owner) {
+        return res.status(404).send({
+          message: "Пользователь по указанному id не найден.",
+        });
+      }
+      res.status(200).send({ avatar });
+    })
     .catch((err) => {
       if (err.name === "ValidationError") {
-        next(
-          new ValidationError(
-            "Переданы некорректные данные при обновлении аватара."
-          )
-        );
-        return;
-      }
-      if (err.name === "NotFoundError") {
-        next(new NotFoundError("Пользователь по указанному id не найден."));
-        return;
+        return res.status(400).send({
+          message: "Переданы некорректные данные при обновлении аватара.",
+        });
       }
       next(
         new Error(`Произошла неизвестная ошибка ${err.name}: ${err.message}`)
@@ -105,7 +105,7 @@ const updateUserAvatar = (req, res, next) => {
 
 module.exports = {
   getUsers,
-  getUserId,
+  getUserById,
   createUser,
   updateUser,
   updateUserAvatar,
