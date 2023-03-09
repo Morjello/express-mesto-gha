@@ -18,10 +18,10 @@ const getUsers = (req, res) => {
 };
 
 const getUserById = (req, res) => {
-  const userId = req.params.userId;
-  User.findById(userId)
+  const user = req.params.userId;
+  User.findById(user)
     .then((user) => {
-      if (!userId) {
+      if (!user) {
         return res.status(404).send({
           message: "Пользователь по указанному _id не найден.",
         });
@@ -29,7 +29,7 @@ const getUserById = (req, res) => {
       res.status(200).send(user);
     })
     .catch((err) => {
-      if (!userId) {
+      if (!user) {
         return res.status(400).send({
           message: "Переданы некорректные данные пользователя.",
         });
@@ -41,11 +41,11 @@ const getUserById = (req, res) => {
 };
 
 const createUser = (req, res) => {
-  const owner = req.user._id;
+  const _id = req.user._id;
   const { name, about, avatar } = req.body;
 
-  User.create({ name, about, avatar, owner })
-    .then(() => res.status(200).send({ name, about, avatar, owner }))
+  User.create({ name, about, avatar, _id })
+    .then(() => res.status(200).send({ name, about, avatar, _id }))
     .catch((err) => {
       if (err.name === "ValidationError") {
         return res.status(400).send({
