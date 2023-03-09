@@ -18,10 +18,10 @@ const getUsers = (req, res) => {
 };
 
 const getUserById = (req, res) => {
-  const user = req.params.userId;
-  User.findById(user)
+  const userId = req.params.userId;
+  User.findById(userId)
     .then((user) => {
-      if (!user) {
+      if (!userId) {
         return res.status(404).send({
           message: "Пользователь по указанному _id не найден.",
         });
@@ -29,7 +29,7 @@ const getUserById = (req, res) => {
       res.status(200).send(user);
     })
     .catch((err) => {
-      if (err.name === "ValidationError") {
+      if (!userId) {
         return res.status(400).send({
           message: "Переданы некорректные данные пользователя.",
         });
@@ -41,11 +41,11 @@ const getUserById = (req, res) => {
 };
 
 const createUser = (req, res) => {
-  const _id = req.user._id;
+  const owner = req.user._id;
   const { name, about, avatar } = req.body;
 
-  User.create({ name, about, avatar })
-    .then(() => res.status(200).send({ name, about, avatar, _id }))
+  User.create({ name, about, avatar, owner })
+    .then(() => res.status(200).send({ name, about, avatar, owner }))
     .catch((err) => {
       if (err.name === "ValidationError") {
         return res.status(400).send({
@@ -61,13 +61,12 @@ const createUser = (req, res) => {
 const updateUser = (req, res) => {
   const owner = req.user._id;
   const { name, about } = req.body;
-  User.findByIdAndUpdate(owner, { name, about }, { new: true })
+  User.findByIdAndUpdate(
+    owner,
+    { name, about },
+    { new: true, runValidators: true }
+  )
     .then(() => {
-      if (!owner) {
-        return res.status(404).send({
-          message: "Пользователь по указанному id не найден.",
-        });
-      }
       res.status(200).send({ name, about });
     })
     .catch((err) => {
@@ -85,13 +84,8 @@ const updateUser = (req, res) => {
 const updateUserAvatar = (req, res) => {
   const owner = req.user._id;
   const { avatar } = req.body;
-  User.findByIdAndUpdate(owner, { avatar }, { new: true })
+  User.findByIdAndUpdate(owner, { avatar })
     .then(() => {
-      if (!owner) {
-        return res.status(404).send({
-          message: "Пользователь по указанному id не найден.",
-        });
-      }
       res.status(200).send({ avatar });
     })
     .catch((err) => {
@@ -100,6 +94,9 @@ const updateUserAvatar = (req, res) => {
           message: "Переданы некорректные данные при обновлении аватара.",
         });
       }
+      res.status(500).send({
+        message: "Произошла ошибка.",
+      });
     });
 };
 
