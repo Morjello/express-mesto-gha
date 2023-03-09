@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const path = require("path");
 const bodyParse = require("body-parser");
 const routes = require("./routes/index");
+const NotFoundError = require("./errors/NotFoundError");
 
 const { PORT = 3000 } = process.env;
 
@@ -23,6 +24,9 @@ app.use((req, res, next) => {
   next();
 });
 app.use(routes);
+app.use((req, res, next) => {
+  next(new NotFoundError("Страница не найдена"));
+});
 
 app.listen(PORT, () => {
   console.log(`work on ${PORT}`);

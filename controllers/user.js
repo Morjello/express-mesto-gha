@@ -7,8 +7,9 @@ const getUsers = (req, res, next) => {
     .then((users) => res.status(200).send(users))
     .catch((err) => {
       if (err.name === "NotFoundError") {
-        next(new NotFoundError("Пользователи не найдены"));
-        return;
+        return res.status(404).send({
+          message: "Пользователи не найдены.",
+        });
       }
       next(
         new Error(`Произошла неизвестная ошибка ${err.name}: ${err.message}`)
@@ -58,7 +59,7 @@ const createUser = (req, res, next) => {
 const updateUser = (req, res, next) => {
   const owner = req.user._id;
   const { name, about } = req.body;
-  User.findByIdAndUpdate(owner, { name, about })
+  User.findByIdAndUpdate(owner, { name, about }, { new: true })
     .then(() => {
       if (!owner) {
         return res.status(404).send({
@@ -82,7 +83,7 @@ const updateUser = (req, res, next) => {
 const updateUserAvatar = (req, res, next) => {
   const owner = req.user._id;
   const { avatar } = req.body;
-  User.findByIdAndUpdate(owner, { avatar })
+  User.findByIdAndUpdate(owner, { avatar }, { new: true })
     .then(() => {
       if (!owner) {
         return res.status(404).send({

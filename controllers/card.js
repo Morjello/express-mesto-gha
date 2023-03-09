@@ -7,8 +7,9 @@ const getCards = (req, res, next) => {
     .then((cards) => res.status(200).send(cards))
     .catch((err) => {
       if (err.name === "NotFoundError") {
-        next(new NotFoundError("Карточки не найдены"));
-        return;
+        return res.status(404).send({
+          message: "Карточки не найдены.",
+        });
       }
       next(
         new Error(`Произошла неизвестная ошибка ${err.name}: ${err.message}`)
@@ -17,10 +18,10 @@ const getCards = (req, res, next) => {
 };
 
 const createCard = (req, res, next) => {
-  const owner = req.user._id;
+  const _id = req.user._id;
   const { name, link } = req.body;
-  Card.create({ name, link, owner })
-    .then(() => res.status(200).send({ name, link, owner }))
+  Card.create({ name, link, _id })
+    .then(() => res.status(200).send({ name, link, _id }))
     .catch((err) => {
       if (err.name === "ValidationError") {
         return res.status(400).send({
@@ -56,7 +57,7 @@ const likeCard = (req, res, next) => {
     { new: true }
   )
     .then((like) => {
-      if (!like) {
+      if (!req.params.cardId) {
         return res.status(404).send({
           message: "Передан несуществующий id карточки.",
         });
@@ -82,7 +83,7 @@ const dislikeCard = (req, res, next) => {
     { new: true }
   )
     .then((like) => {
-      if (!like) {
+      if (!req.params.cardId) {
         return res.status(404).send({
           message: "Передан несуществующий id карточки.",
         });
