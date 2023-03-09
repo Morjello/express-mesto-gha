@@ -24,8 +24,10 @@ app.use((req, res, next) => {
   next();
 });
 app.use(routes);
-app.use((req, res, next) => {
-  next(new NotFoundError("Страница не найдена"));
+app.use((req, res) => {
+  return res.status(404).send({
+    message: "Страница не найдена.",
+  });
 });
 
 app.listen(PORT, () => {

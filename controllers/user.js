@@ -2,7 +2,7 @@ const User = require("../models/user");
 const ValidationError = require("../errors/ValidationError");
 const NotFoundError = require("../errors/NotFoundError");
 
-const getUsers = (req, res, next) => {
+const getUsers = (req, res) => {
   return User.find({})
     .then((users) => res.status(200).send(users))
     .catch((err) => {
@@ -11,13 +11,13 @@ const getUsers = (req, res, next) => {
           message: "Пользователи не найдены.",
         });
       }
-      next(
-        new Error(`Произошла неизвестная ошибка ${err.name}: ${err.message}`)
-      );
+      res.status(500).send({
+        message: "Произошла ошибка.",
+      });
     });
 };
 
-const getUserById = (req, res, next) => {
+const getUserById = (req, res) => {
   const user = req.params.userId;
   User.findById(user)
     .then((user) => {
@@ -34,11 +34,13 @@ const getUserById = (req, res, next) => {
           message: "Переданы некорректные данные пользователя.",
         });
       }
-      next(err);
+      res.status(500).send({
+        message: "Произошла ошибка.",
+      });
     });
 };
 
-const createUser = (req, res, next) => {
+const createUser = (req, res) => {
   const _id = req.user._id;
   const { name, about, avatar } = req.body;
 
@@ -50,13 +52,13 @@ const createUser = (req, res, next) => {
           message: "Переданы некорректные данные при создании пользователя.",
         });
       }
-      next(
-        new Error(`Произошла неизвестная ошибка ${err.name}: ${err.message}`)
-      );
+      res.status(500).send({
+        message: "Произошла ошибка.",
+      });
     });
 };
 
-const updateUser = (req, res, next) => {
+const updateUser = (req, res) => {
   const owner = req.user._id;
   const { name, about } = req.body;
   User.findByIdAndUpdate(owner, { name, about }, { new: true })
@@ -74,13 +76,13 @@ const updateUser = (req, res, next) => {
           message: "Переданы некорректные данные при обновлении профиля.",
         });
       }
-      next(
-        new Error(`Произошла неизвестная ошибка ${err.name}: ${err.message}`)
-      );
+      res.status(500).send({
+        message: "Произошла ошибка.",
+      });
     });
 };
 
-const updateUserAvatar = (req, res, next) => {
+const updateUserAvatar = (req, res) => {
   const owner = req.user._id;
   const { avatar } = req.body;
   User.findByIdAndUpdate(owner, { avatar }, { new: true })
@@ -98,9 +100,6 @@ const updateUserAvatar = (req, res, next) => {
           message: "Переданы некорректные данные при обновлении аватара.",
         });
       }
-      next(
-        new Error(`Произошла неизвестная ошибка ${err.name}: ${err.message}`)
-      );
     });
 };
 
