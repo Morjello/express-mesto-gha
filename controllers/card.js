@@ -10,27 +10,29 @@ const getCards = (req, res) => {
         return res.status(404).send({
           message: "Карточки не найдены.",
         });
+      } else {
+        res.status(500).send({
+          message: "Произошла ошибка.",
+        });
       }
-      res.status(500).send({
-        message: "Произошла ошибка.",
-      });
     });
 };
 
 const createCard = (req, res) => {
-  const _id = req.user._id;
+  const owner = req.user._id;
   const { name, link } = req.body;
-  Card.create({ name, link, _id })
-    .then(() => res.status(200).send({ name, link, _id }))
+  Card.create({ name, link, owner })
+    .then(() => res.status(200).send({ name, link, owner }))
     .catch((err) => {
       if (err.name === "ValidationError") {
-        res.status(400).send({
+        return res.status(400).send({
           message: "Переданы некорректные данные при создании карточки.",
         });
+      } else {
+        res.status(500).send({
+          message: "Произошла ошибка.",
+        });
       }
-      res.status(500).send({
-        message: "Произошла ошибка.",
-      });
     });
 };
 
@@ -68,14 +70,14 @@ const likeCard = (req, res) => {
     })
     .catch((err) => {
       if (err.name === "ValidationError") {
-        res.status(400).send({
+        return res.status(400).send({
           message: "Переданы некорректные данные для постановки лайка.",
         });
+      } else {
+        res.status(500).send({
+          message: "Произошла ошибка.",
+        });
       }
-
-      res.status(500).send({
-        message: "Произошла ошибка.",
-      });
     });
 };
 
@@ -95,13 +97,14 @@ const dislikeCard = (req, res) => {
     })
     .catch((err) => {
       if (err.name === "ValidationError") {
-        res.status(400).send({
+        return res.status(400).send({
           message: "Переданы некорректные данные для снятии лайка.",
         });
+      } else {
+        res.status(500).send({
+          message: "Произошла ошибка.",
+        });
       }
-      res.status(500).send({
-        message: "Произошла ошибка.",
-      });
     });
 };
 

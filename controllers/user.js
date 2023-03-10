@@ -10,10 +10,11 @@ const getUsers = (req, res) => {
         return res.status(404).send({
           message: "Пользователи не найдены.",
         });
+      } else {
+        res.status(500).send({
+          message: "Произошла ошибка.",
+        });
       }
-      res.status(500).send({
-        message: "Произошла ошибка.",
-      });
     });
 };
 
@@ -30,31 +31,33 @@ const getUserById = (req, res) => {
     })
     .catch((err) => {
       if (err.name === "ValidationError") {
-        res.status(400).send({
+        return res.status(400).send({
           message: "Переданы некорректные данные пользователя.",
         });
+      } else {
+        res.status(500).send({
+          message: "Произошла ошибка.",
+        });
       }
-      res.status(500).send({
-        message: "Произошла ошибка.",
-      });
     });
 };
 
 const createUser = (req, res) => {
-  const _id = req.user._id;
+  const owner = req.user._id;
   const { name, about, avatar } = req.body;
 
-  User.create({ name, about, avatar, _id })
-    .then(() => res.status(200).send({ name, about, avatar, _id }))
+  return User.create({ name, about, avatar, owner })
+    .then(() => res.status(200).send({ name, about, avatar, owner }))
     .catch((err) => {
       if (err.name === "ValidationError") {
-        res.status(400).send({
+        return res.status(400).send({
           message: "Переданы некорректные данные при создании пользователя.",
         });
+      } else {
+        res.status(500).send({
+          message: "Произошла ошибка.",
+        });
       }
-      res.status(500).send({
-        message: "Произошла ошибка.",
-      });
     });
 };
 
@@ -71,13 +74,14 @@ const updateUser = (req, res) => {
     })
     .catch((err) => {
       if (err.name === "ValidationError") {
-        res.status(400).send({
+        return res.status(400).send({
           message: "Переданы некорректные данные при обновлении профиля.",
         });
+      } else {
+        res.status(500).send({
+          message: "Произошла ошибка.",
+        });
       }
-      res.status(500).send({
-        message: "Произошла ошибка.",
-      });
     });
 };
 
@@ -90,13 +94,14 @@ const updateUserAvatar = (req, res) => {
     })
     .catch((err) => {
       if (err.name === "ValidationError") {
-        res.status(400).send({
+        return res.status(400).send({
           message: "Переданы некорректные данные при обновлении аватара.",
         });
+      } else {
+        res.status(500).send({
+          message: "Произошла ошибка.",
+        });
       }
-      res.status(500).send({
-        message: "Произошла ошибка.",
-      });
     });
 };
 
