@@ -23,7 +23,7 @@ const createCard = (req, res) => {
   Card.create({ name, link, _id })
     .then(() => res.status(200).send({ name, link, _id }))
     .catch((err) => {
-      if (err.name === "ValidationError") {
+      if (err.name === "CastError") {
         return res.status(400).send({
           message: "Переданы некорректные данные при создании карточки.",
         });
@@ -67,7 +67,7 @@ const likeCard = (req, res) => {
       res.status(200).send(like);
     })
     .catch((err) => {
-      if (err.name === "ValidationError") {
+      if (err.name === "CastError") {
         return res.status(400).send({
           message: "Переданы некорректные данные для постановки лайка.",
         });
@@ -94,7 +94,7 @@ const dislikeCard = (req, res) => {
       res.status(200).send(like);
     })
     .catch((err) => {
-      if (err.name === "ValidationError") {
+      if (err.name === "CastError") {
         return res.status(400).send({
           message: "Переданы некорректные данные для снятии лайка.",
         });
