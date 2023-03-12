@@ -19,8 +19,8 @@ const getCards = (req, res) => {
 const createCard = (req, res) => {
   const owner = req.user._id;
   const { name, link } = req.body;
-  return Card.create({ name, link, owner })
-    .then(() => res.status(OK).send({ name, link, owner }))
+  Card.create({ name, link, owner })
+    .then((card) => res.status(OK).send(card))
     .catch((err) => {
       if (err.name === "ValidationError") {
         res.status(CAST_ERROR).send({

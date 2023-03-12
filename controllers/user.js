@@ -3,11 +3,12 @@ const {
   NOT_FOUND_ERROR,
   CAST_ERROR,
   ERROR,
+  OK,
 } = require("../constants/constants");
 
 const getUsers = (req, res) => {
   User.find({})
-    .then((users) => res.status(200).send(users))
+    .then((users) => res.status(OK).send(users))
     .catch((err) => {
       if (err.name === "NotFoundError") {
         res.status(NOT_FOUND_ERROR).send({
@@ -24,13 +25,13 @@ const getUsers = (req, res) => {
 const getUserById = (req, res) => {
   const user = req.params.userId;
   User.findById(user)
-    .then(() => {
-      if (!user) {
+    .then((userData) => {
+      if (!userData) {
         res.status(NOT_FOUND_ERROR).send({
           message: "Пользователь по указанному _id не найден.",
         });
       }
-      res.status(200).send(user);
+      res.status(OK).send(userData);
     })
     .catch((err) => {
       if (err.name === "CastError") {
@@ -46,22 +47,17 @@ const getUserById = (req, res) => {
 };
 
 const createUser = (req, res) => {
-  const owner = req.user._id;
+  const { _id } = req.user._id;
   const { name, about, avatar } = req.body;
 
   User.create({
     name,
     about,
     avatar,
-    owner,
+    _id,
   })
-    .then(() => {
-      res.status(200).send({
-        name,
-        about,
-        avatar,
-        owner,
-      });
+    .then((user) => {
+      res.status(OK).send(user);
     })
     .catch((err) => {
       if (err.name === "ValidationError") {
@@ -85,7 +81,7 @@ const updateUser = (req, res) => {
     { new: true, runValidators: true }
   )
     .then(() => {
-      res.status(200).send({ name, about });
+      res.status(OK).send({ name, about });
     })
     .catch((err) => {
       if (err.name === "ValidationError") {
@@ -105,7 +101,7 @@ const updateUserAvatar = (req, res) => {
   const { avatar } = req.body;
   User.findByIdAndUpdate(owner, { avatar })
     .then(() => {
-      res.status(200).send({ avatar });
+      res.status(OK).send({ avatar });
     })
     .catch((err) => {
       if (err.name === "ValidationError") {
