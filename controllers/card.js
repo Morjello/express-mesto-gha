@@ -1,4 +1,4 @@
-const Card = require("../models/user");
+const Card = require("../models/card");
 const {
   NOT_FOUND_ERROR,
   CAST_ERROR,
@@ -35,14 +35,13 @@ const createCard = (req, res) => {
 };
 
 const deleteCard = (req, res) => {
-  Card.findById(req.params.cardId)
+  Card.findByIdAndDelete(req.params.cardId)
     .then((card) => {
       if (!card) {
         res.status(NOT_FOUND_ERROR).send({
           message: "Карточка с указанным id не найдена.",
         });
       }
-      card.delete();
       res.status(OK).send(card);
     })
     .catch((err) => {
