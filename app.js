@@ -16,18 +16,15 @@ mongoose.set("strictQuery", false);
 
 app.use(express.static(path.join(__dirname, "public")));
 app.use(bodyParse.json());
-app.use((req, res, next) => {
-  req.user = {
-    _id: "64061af81368a7512037c44b",
-  };
-
-  next();
-});
 app.use(routes);
 app.use((req, res) => {
   res.status(NOT_FOUND_ERROR).send({
     message: "Страница не найдена.",
   });
+});
+
+app.use((err, req, res, next) => {
+  res.status(500).send({ message: "На сервере произошла ошибка" });
 });
 
 app.listen(PORT, () => {

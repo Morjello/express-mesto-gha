@@ -1,3 +1,6 @@
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+const { NotFoundError } = require("../errors/not-found-err");
 const User = require("../models/user");
 const {
   NOT_FOUND_ERROR,
@@ -22,14 +25,12 @@ const getUsers = (req, res) => {
     });
 };
 
-const getUserById = (req, res) => {
+const getUserById = (req, res, next) => {
   const user = req.params.userId;
   User.findById(user)
     .then((userData) => {
       if (!userData) {
-        res.status(NOT_FOUND_ERROR).send({
-          message: "Пользователь по указанному _id не найден.",
-        });
+        throw new NotFoundError("Пользователь по указанному _id не найден.");
       }
       res.status(OK).send(userData);
     })
@@ -38,24 +39,26 @@ const getUserById = (req, res) => {
         res.status(CAST_ERROR).send({
           message: "Переданы некорректные данные пользователя.",
         });
-      } else {
-        res.status(ERROR).send({
-          message: "Произошла ошибка.",
-        });
       }
+      next(err);
     });
 };
 
 const createUser = (req, res) => {
   const { _id } = req.user._id;
-  const { name, about, avatar } = req.body;
-
-  User.create({
-    name,
-    about,
-    avatar,
-    _id,
-  })
+  const { name, about, avatar, email, password } = req.body;
+  bcrypt
+    .hash(password, 10)
+    .then((hash) =>
+      User.create({
+        name,
+        about,
+        avatar,
+        email,
+        password: hash,
+        _id,
+      })
+    )
     .then((user) => {
       res.status(OK).send(user);
     })
@@ -69,6 +72,49 @@ const createUser = (req, res) => {
           message: "Произошла ошибка.",
         });
       }
+    });
+};
+
+const getCurrentUser = (req, res, next) => {
+  const user = req.params.userId;
+  User.findById(user)
+    .then((userData) => {
+      if (!userData) {
+        throw new NotFoundError("Пользователь по указанному _id не найден.");
+      }
+      res.status(OK).send(userData);
+    })
+    .catch((err) => {
+      if (err.name === "ValidationError") {
+        res.status(CAST_ERROR).send({
+          message: "Переданы некорректные данные при обновлении аватара.",
+        });
+      }
+      next(err);
+    });
+};
+
+const login = (req, res) => {
+  const { email, password } = req.body;
+  User.findOne({ email })
+    .select("+password")
+    .then((user) => {
+      if (!user) {
+        Promise.reject(new Error("Неправильные почта или пароль"));
+      }
+      const token = jwt.sign({ _id: user._id }, "some-secret-key", {
+        expiresIn: "7d",
+      });
+      res.send({ token });
+      return bcrypt.compare(password, user.password);
+    })
+    .then((matched) => {
+      if (!matched) {
+        Promise.reject(new Error("Неправильные почта или пароль"));
+      }
+    })
+    .catch(() => {
+      res.status(401).send({ message: "Неправильные почта или пароль" });
     });
 };
 
@@ -122,4 +168,6 @@ module.exports = {
   createUser,
   updateUser,
   updateUserAvatar,
+  login,
+  getCurrentUser,
 };
