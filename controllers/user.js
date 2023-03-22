@@ -2,6 +2,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const { NotFoundError } = require("../errors/not-found-err");
 const { ValidationError } = require("../errors/validation-error");
+const { AuthError } = require("../errors/auth-error");
 const User = require("../models/user");
 const { OK } = require("../constants/constants");
 
@@ -52,12 +53,15 @@ const createUser = (req, res, next) => {
       res.status(OK).send(user);
     })
     .catch((err) => {
-      if (err.name === "ValidationError") {
+      if (err.code === 1100) {
+        throw new Error("Такой пользователь уже есть");
+      } else if (err.name === "ValidationError") {
         throw new ValidationError(
-          "Переданы некорректные данные при создании пользователя."
+          "Переданы некорректные данные при обновлении аватара."
         );
+      } else {
+        next(err);
       }
-      next(err);
     });
 };
 
@@ -89,7 +93,7 @@ const login = (req, res, next) => {
     .select("+password")
     .then((user) => {
       if (!user) {
-        Promise.reject(new Error("Неправильные почта или пароль"));
+        throw new AuthError("Неправильные почта или пароль");
       }
       const token = jwt.sign({ _id: user._id }, "some-secret-key", {
         expiresIn: "7d",
@@ -99,7 +103,7 @@ const login = (req, res, next) => {
     })
     .then((matched) => {
       if (!matched) {
-        Promise.reject(new Error("Неправильные почта или пароль"));
+        throw new AuthError("Неправильные почта или пароль");
       }
     })
     .catch((err) => {
