@@ -1,27 +1,18 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const { NotFoundError } = require("../errors/not-found-err");
+const { ValidationError } = require("../errors/validation-error");
 const User = require("../models/user");
-const {
-  NOT_FOUND_ERROR,
-  CAST_ERROR,
-  ERROR,
-  OK,
-} = require("../constants/constants");
+const { OK } = require("../constants/constants");
 
-const getUsers = (req, res) => {
+const getUsers = (req, res, next) => {
   User.find({})
     .then((users) => res.status(OK).send(users))
     .catch((err) => {
       if (err.name === "NotFoundError") {
-        res.status(NOT_FOUND_ERROR).send({
-          message: "Пользователи не найдены.",
-        });
-      } else {
-        res.status(ERROR).send({
-          message: "Произошла ошибка.",
-        });
+        throw new NotFoundError("Пользователи не найдены.");
       }
+      next(err);
     });
 };
 
@@ -36,15 +27,13 @@ const getUserById = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === "CastError") {
-        res.status(CAST_ERROR).send({
-          message: "Переданы некорректные данные пользователя.",
-        });
+        throw new ValidationError("Переданы некорректные данные пользователя.");
       }
       next(err);
     });
 };
 
-const createUser = (req, res) => {
+const createUser = (req, res, next) => {
   const { _id } = req.user._id;
   const { name, about, avatar, email, password } = req.body;
   bcrypt
@@ -64,14 +53,11 @@ const createUser = (req, res) => {
     })
     .catch((err) => {
       if (err.name === "ValidationError") {
-        res.status(CAST_ERROR).send({
-          message: "Переданы некорректные данные при создании пользователя.",
-        });
-      } else {
-        res.status(ERROR).send({
-          message: "Произошла ошибка.",
-        });
+        throw new ValidationError(
+          "Переданы некорректные данные при создании пользователя."
+        );
       }
+      next(err);
     });
 };
 
@@ -86,15 +72,15 @@ const getCurrentUser = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === "ValidationError") {
-        res.status(CAST_ERROR).send({
-          message: "Переданы некорректные данные при обновлении аватара.",
-        });
+        throw new ValidationError(
+          "Переданы некорректные данные при обновлении аватара."
+        );
       }
       next(err);
     });
 };
 
-const login = (req, res) => {
+const login = (req, res, next) => {
   const { email, password } = req.body;
   User.findOne({ email })
     .select("+password")
@@ -113,12 +99,12 @@ const login = (req, res) => {
         Promise.reject(new Error("Неправильные почта или пароль"));
       }
     })
-    .catch(() => {
-      res.status(401).send({ message: "Неправильные почта или пароль" });
+    .catch((err) => {
+      next(err);
     });
 };
 
-const updateUser = (req, res) => {
+const updateUser = (req, res, next) => {
   const owner = req.user._id;
   const { name, about } = req.body;
   User.findByIdAndUpdate(
@@ -131,18 +117,15 @@ const updateUser = (req, res) => {
     })
     .catch((err) => {
       if (err.name === "ValidationError") {
-        res.status(CAST_ERROR).send({
-          message: "Переданы некорректные данные при обновлении профиля.",
-        });
-      } else {
-        res.status(ERROR).send({
-          message: "Произошла ошибка.",
-        });
+        throw new ValidationError(
+          "Переданы некорректные данные при обновлении профиля."
+        );
       }
+      next(err);
     });
 };
 
-const updateUserAvatar = (req, res) => {
+const updateUserAvatar = (req, res, next) => {
   const owner = req.user._id;
   const { avatar } = req.body;
   User.findByIdAndUpdate(owner, { avatar })
@@ -151,14 +134,11 @@ const updateUserAvatar = (req, res) => {
     })
     .catch((err) => {
       if (err.name === "ValidationError") {
-        res.status(CAST_ERROR).send({
-          message: "Переданы некорректные данные при обновлении аватара.",
-        });
-      } else {
-        res.status(ERROR).send({
-          message: "Произошла ошибка.",
-        });
+        throw new ValidationError(
+          "Переданы некорректные данные при обновлении аватара."
+        );
       }
+      next(err);
     });
 };
 
