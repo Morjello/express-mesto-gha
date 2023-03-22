@@ -38,7 +38,7 @@ const createUser = (req, res, next) => {
   const { name, about, avatar, email, password } = req.body;
   bcrypt
     .hash(password, 10)
-    .then((hash) =>
+    .then((hash) => {
       User.create({
         name,
         about,
@@ -46,8 +46,8 @@ const createUser = (req, res, next) => {
         email,
         password: hash,
         _id,
-      })
-    )
+      });
+    })
     .then((user) => {
       res.status(OK).send(user);
     })
@@ -71,12 +71,15 @@ const getCurrentUser = (req, res, next) => {
       res.status(OK).send(userData);
     })
     .catch((err) => {
-      if (err.name === "ValidationError") {
+      if (err.code === 1100) {
+        throw new Error("Такой пользователь уже есть");
+      } else if (err.name === "ValidationError") {
         throw new ValidationError(
           "Переданы некорректные данные при обновлении аватара."
         );
+      } else {
+        next(err);
       }
-      next(err);
     });
 };
 
