@@ -8,7 +8,10 @@ const {
   dislikeCard,
 } = require("../controllers/card");
 
+// получаем все карточки
 router.get("/", getCards);
+
+// создаем карточку
 router.post(
   "/",
   celebrate({
@@ -23,6 +26,8 @@ router.post(
   }),
   createCard
 );
+
+// удаляем карточку
 router.delete(
   "/:cardId",
   celebrate({
@@ -32,6 +37,8 @@ router.delete(
   }),
   deleteCard
 );
+
+// ставим лайк
 router.put(
   "/:cardId/likes",
   celebrate({
@@ -41,6 +48,8 @@ router.put(
   }),
   likeCard
 );
+
+// убираем лайк
 router.delete(
   "/:cardId/likes",
   celebrate({

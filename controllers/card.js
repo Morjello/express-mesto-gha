@@ -18,8 +18,10 @@ const createCard = (req, res, next) => {
     .then((card) => res.status(OK).send(card))
     .catch((err) => {
       if (err.name === "ValidationError") {
-        throw new ValidationError(
-          "Переданы некорректные данные при создании карточки."
+        next(
+          new ValidationError(
+            "Переданы некорректные данные при создании карточки."
+          )
         );
       }
       next(err);
@@ -41,8 +43,10 @@ const deleteCard = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === "CastError") {
-        throw new ValidationError(
-          "Переданы некорректные данные для удаления карточки."
+        next(
+          new ValidationError(
+            "Переданы некорректные данные для удаления карточки."
+          )
         );
       }
       next(err);
@@ -63,8 +67,10 @@ const likeCard = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === "CastError") {
-        throw new ValidationError(
-          "Переданы некорректные данные для постановки лайка."
+        next(
+          new ValidationError(
+            "Переданы некорректные данные для постановки лайка."
+          )
         );
       }
       next(err);
@@ -85,8 +91,8 @@ const dislikeCard = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === "CastError") {
-        throw new ValidationError(
-          "Переданы некорректные данные для снятии лайка."
+        next(
+          new ValidationError("Переданы некорректные данные для снятии лайка.")
         );
       }
       next(err);

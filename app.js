@@ -1,21 +1,28 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const path = require("path");
-const bodyParse = require("body-parser");
-const routes = require("./routes/index");
+const bodyParser = require("body-parser");
+const helmet = require("helmet");
+const cors = require("cors");
 
-const { PORT = 3000 } = process.env;
+const routes = require("./routes/index");
+const errorHandler = require("./middlewares/error-handler");
+const { PORT, DB_ADRESS } = require("./config");
 
 const app = express();
 
-mongoose.connect("mongodb://0.0.0.0:27017/mestodb", {
+mongoose.connect(DB_ADRESS, {
   useNewUrlParser: true,
 });
 mongoose.set("strictQuery", false);
 
+app.use(helmet());
+app.use(cors({ origin: "http://localhost:3000" }));
 app.use(express.static(path.join(__dirname, "public")));
-app.use(bodyParse.json());
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(routes);
+app.use(errorHandler);
 
 app.listen(PORT, () => {
   console.log(`work on ${PORT}`);

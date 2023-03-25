@@ -1,22 +1,24 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const { NotFoundError } = require("../errors/not-found-err");
-const { ValidationError } = require("../errors/validation-error");
-const { AuthError } = require("../errors/auth-error");
+const NotFoundError = require("../errors/not-found-err");
+const ValidationError = require("../errors/validation-error");
+const AuthError = require("../errors/auth-error");
 const User = require("../models/user");
 const { OK } = require("../constants/constants");
 
+// получаем всех пользователей
 const getUsers = (req, res, next) => {
   User.find({})
     .then((users) => res.status(OK).send(users))
     .catch((err) => {
       if (err.name === "NotFoundError") {
-        throw new NotFoundError("Пользователи не найдены.");
+        next(new NotFoundError("Пользователи не найдены."));
       }
       next(err);
     });
 };
 
+// получаем пользователя по id
 const getUserById = (req, res, next) => {
   const user = req.params.userId;
   User.findById(user)
@@ -28,14 +30,36 @@ const getUserById = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === "CastError") {
-        throw new ValidationError("Переданы некорректные данные пользователя.");
+        next(new ValidationError("Переданы некорректные данные пользователя."));
       }
       next(err);
     });
 };
 
+// получаем текущего пользователя
+const getCurrentUser = (req, res, next) => {
+  User.findById(req.user._id)
+    .then((userData) => {
+      if (!userData) {
+        throw new NotFoundError("Пользователь по указанному _id не найден.");
+      }
+      res.status(OK).send(userData);
+    })
+    .catch((err) => {
+      if (err.name === "ValidationError") {
+        next(
+          new ValidationError(
+            "Переданы некорректные данные при обновлении аватара."
+          )
+        );
+      } else {
+        next(err);
+      }
+    });
+};
+
+// создаем нового пользователя /sign-up
 const createUser = (req, res, next) => {
-  const { _id } = req.user._id;
   const { name, about, avatar, email, password } = req.body;
   bcrypt
     .hash(password, 10)
@@ -46,18 +70,25 @@ const createUser = (req, res, next) => {
         avatar,
         email,
         password: hash,
-        _id,
       });
     })
     .then((user) => {
-      res.status(OK).send(user);
+      res.status(OK).send({
+        name: user.name,
+        about: user.about,
+        avatar: user.avatar,
+        email: user.email,
+        _id: user._id,
+      });
     })
     .catch((err) => {
       if (err.code === 1100) {
-        throw new Error("Такой пользователь уже есть");
+        next(new Error("Такой пользователь уже есть"));
       } else if (err.name === "ValidationError") {
-        throw new ValidationError(
-          "Переданы некорректные данные при обновлении аватара."
+        next(
+          new ValidationError(
+            "Переданы некорректные данные при обновлении аватара."
+          )
         );
       } else {
         next(err);
@@ -65,28 +96,7 @@ const createUser = (req, res, next) => {
     });
 };
 
-const getCurrentUser = (req, res, next) => {
-  const user = req.params.userId;
-  User.findById(user)
-    .then((userData) => {
-      if (!userData) {
-        throw new NotFoundError("Пользователь по указанному _id не найден.");
-      }
-      res.status(OK).send(userData);
-    })
-    .catch((err) => {
-      if (err.code === 1100) {
-        throw new Error("Такой пользователь уже есть");
-      } else if (err.name === "ValidationError") {
-        throw new ValidationError(
-          "Переданы некорректные данные при обновлении аватара."
-        );
-      } else {
-        next(err);
-      }
-    });
-};
-
+// лагинимся /sign-in
 const login = (req, res, next) => {
   const { email, password } = req.body;
   User.findOne({ email })
@@ -103,7 +113,7 @@ const login = (req, res, next) => {
     })
     .then((matched) => {
       if (!matched) {
-        throw new AuthError("Неправильные почта или пароль");
+        next(new AuthError("Неправильные почта или пароль"));
       }
     })
     .catch((err) => {
@@ -111,6 +121,7 @@ const login = (req, res, next) => {
     });
 };
 
+// обновляем инфу о пользователе
 const updateUser = (req, res, next) => {
   const owner = req.user._id;
   const { name, about } = req.body;
@@ -124,14 +135,17 @@ const updateUser = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === "ValidationError") {
-        throw new ValidationError(
-          "Переданы некорректные данные при обновлении профиля."
+        next(
+          new ValidationError(
+            "Переданы некорректные данные при обновлении профиля."
+          )
         );
       }
       next(err);
     });
 };
 
+// обновляем аватар пользовтеля
 const updateUserAvatar = (req, res, next) => {
   const owner = req.user._id;
   const { avatar } = req.body;
@@ -141,8 +155,10 @@ const updateUserAvatar = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === "ValidationError") {
-        throw new ValidationError(
-          "Переданы некорректные данные при обновлении аватара."
+        next(
+          new ValidationError(
+            "Переданы некорректные данные при обновлении аватара."
+          )
         );
       }
       next(err);

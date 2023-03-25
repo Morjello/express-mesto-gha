@@ -4,8 +4,9 @@ const auth = require("../middlewares/auth");
 const userRoutes = require("./user");
 const cardsRoutes = require("./card");
 const { createUser, login } = require("../controllers/user");
+const NotFoundError = require("../errors/not-found-err");
 
-router.use("/users", auth, userRoutes);
+// логин
 router.post(
   "/signin",
   celebrate({
@@ -16,6 +17,8 @@ router.post(
   }),
   login
 );
+
+// регистрация
 router.post(
   "/signup",
   celebrate({
@@ -31,13 +34,19 @@ router.post(
   }),
   createUser
 );
+
+router.use("/users", auth, userRoutes);
 router.use("/cards", auth, cardsRoutes);
 
-router.use(errors());
+router.use((req, res, next) => {
+  next(new NotFoundError("Страница не найдена"));
+});
 
 router.use((err, req, res, next) => {
-  res.status(500).send({ message: "На сервере произошла ошибка" });
-  next(err);
+  res.send({ message: err.message });
+  next();
 });
+
+router.use(errors());
 
 module.exports = router;

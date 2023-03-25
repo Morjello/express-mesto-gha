@@ -8,7 +8,10 @@ const {
   getCurrentUser,
 } = require("../controllers/user");
 
+// получаем всех пользователей
 router.get("/", getUsers);
+
+// получаем пользователя по id
 router.get(
   "/:userId",
   celebrate({
@@ -18,7 +21,11 @@ router.get(
   }),
   getUserById
 );
+
+// получаем данные текущего пользователя
 router.get("/me", getCurrentUser);
+
+// обновляем имя и описание пользователя
 router.patch(
   "/me",
   celebrate({
@@ -29,6 +36,8 @@ router.patch(
   }),
   updateUser
 );
+
+// обновляем аватар
 router.patch(
   "/me/avatar",
   celebrate({
@@ -40,7 +49,5 @@ router.patch(
   }),
   updateUserAvatar
 );
-// router.post("/", login);
-// router.post("/", createUser);
 
 module.exports = router;
