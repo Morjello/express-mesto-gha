@@ -27,14 +27,16 @@ const getUserById = (req, res, next) => {
     .then((userData) => {
       if (!userData) {
         throw new NotFoundError("Пользователь по указанному _id не найден.");
+      } else {
+        res.status(OK).send(userData);
       }
-      res.status(OK).send(userData);
     })
     .catch((err) => {
       if (err.name === "CastError") {
         next(new ValidationError("Переданы некорректные данные пользователя."));
+      } else {
+        next(err);
       }
-      next(err);
     });
 };
 

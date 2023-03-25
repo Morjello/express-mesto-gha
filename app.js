@@ -5,7 +5,6 @@ const bodyParser = require("body-parser");
 const cors = require("cors");
 
 const routes = require("./routes/index");
-//const errorHandler = require("./middlewares/error-handler");
 const { PORT, DB_ADRESS } = require("./config");
 
 const app = express();
@@ -20,7 +19,6 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(routes);
-//app.use(errorHandler);
 
 app.listen(PORT, () => {
   console.log(`work on ${PORT}`);
