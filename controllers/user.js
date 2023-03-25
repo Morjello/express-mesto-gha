@@ -5,7 +5,7 @@ const ValidationError = require("../errors/validation-error");
 const AuthError = require("../errors/auth-error");
 const ConflictError = require("../errors/conflict-error");
 const User = require("../models/user");
-const { OK } = require("../constants/constants");
+const { OK } = require("../utils/constants");
 
 // получаем всех пользователей
 const getUsers = (req, res, next) => {

@@ -1,7 +1,7 @@
 const Card = require("../models/card");
 const { ValidationError } = require("../errors/validation-error");
 const { NotFoundError } = require("../errors/not-found-err");
-const { OK } = require("../constants/constants");
+const { OK } = require("../utils/constants");
 
 const getCards = (req, res, next) => {
   Card.find({})
@@ -32,11 +32,13 @@ const deleteCard = (req, res, next) => {
   Card.findByIdAndDelete(req.params.cardId)
     .then((card) => {
       if (!card) {
-        throw new NotFoundError("Карточка с указанным id не найдена.");
+        next(new NotFoundError("Карточка с указанным id не найдена."));
       }
       if (card.owner.toString() !== req.user._id) {
-        throw new ValidationError(
-          "Вы не можете удалить карточку другого пользователя"
+        next(
+          new ValidationError(
+            "Вы не можете удалить карточку другого пользователя"
+          )
         );
       }
       res.status(OK).send(card);
@@ -61,7 +63,7 @@ const likeCard = (req, res, next) => {
   )
     .then((like) => {
       if (!like) {
-        throw new NotFoundError("Передан несуществующий id карточки.");
+        next(new NotFoundError("Передан несуществующий id карточки."));
       }
       res.status(OK).send(like);
     })
@@ -85,7 +87,7 @@ const dislikeCard = (req, res, next) => {
   )
     .then((like) => {
       if (!like) {
-        throw new NotFoundError("Передан несуществующий id карточки.");
+        next(new NotFoundError("Передан несуществующий id карточки."));
       }
       res.status(OK).send(like);
     })

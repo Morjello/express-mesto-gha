@@ -3,6 +3,8 @@
     "rules": {
       "no-underscore-dangle": ["error", { "allow": ["_id"] }],
       "quotes": ["error", "double"],
-      "comma-dangle": ["error", "only-multiline"]
+      "comma-dangle": ["error", "only-multiline"],
+      "operator-linebreak": ["error", "after"],
+      "multiline": true
     }
   }
