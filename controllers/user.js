@@ -3,6 +3,7 @@ const jwt = require("jsonwebtoken");
 const NotFoundError = require("../errors/not-found-err");
 const ValidationError = require("../errors/validation-error");
 const AuthError = require("../errors/auth-error");
+const ConflictError = require("../errors/conflict-error");
 const User = require("../models/user");
 const { OK } = require("../constants/constants");
 
@@ -41,21 +42,11 @@ const getCurrentUser = (req, res, next) => {
   User.findById(req.user._id)
     .then((userData) => {
       if (!userData) {
-        throw new NotFoundError("Пользователь по указанному _id не найден.");
+        throw new NotFoundError("Пользователь не найден.");
       }
       res.status(OK).send(userData);
     })
-    .catch((err) => {
-      if (err.name === "ValidationError") {
-        next(
-          new ValidationError(
-            "Переданы некорректные данные при обновлении аватара."
-          )
-        );
-      } else {
-        next(err);
-      }
-    });
+    .catch(next);
 };
 
 // создаем нового пользователя /sign-up
@@ -83,7 +74,7 @@ const createUser = (req, res, next) => {
     })
     .catch((err) => {
       if (err.code === 1100) {
-        next(new Error("Такой пользователь уже есть"));
+        next(new ConflictError("Такой пользователь уже есть"));
       } else if (err.name === "ValidationError") {
         next(
           new ValidationError(
@@ -108,7 +99,7 @@ const login = (req, res, next) => {
       const token = jwt.sign({ _id: user._id }, "some-secret-key", {
         expiresIn: "7d",
       });
-      res.send({ token });
+      res.send({ user, token });
       return bcrypt.compare(password, user.password);
     })
     .then((matched) => {

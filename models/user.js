@@ -24,7 +24,7 @@ const userSchema = new mongoose.Schema({
     required: true,
     unique: true,
     validate: {
-      validator: (email) => validator.isEmail(email),
+      validator: (v) => validator.isEmail(v),
       message: "Неверный формат почты",
     },
   },
