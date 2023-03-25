@@ -1,5 +1,5 @@
 const router = require("express").Router();
-const { celebrate, Joi } = require("celebrate");
+const { celebrate, Joi, errors } = require("celebrate");
 const auth = require("../middlewares/auth");
 const userRoutes = require("./user");
 const cardsRoutes = require("./card");
@@ -47,6 +47,8 @@ router.use("/cards", auth, cardsRoutes);
 router.use((req, res, next) => {
   next(new NotFoundError("Страница не найдена"));
 });
+
+router.use(errors());
 
 router.use((err, req, res, next) => {
   res.send({ message: err.message });

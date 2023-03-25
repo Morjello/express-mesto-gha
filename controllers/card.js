@@ -1,6 +1,6 @@
 const Card = require("../models/card");
-const { ValidationError } = require("../errors/validation-error");
-const { NotFoundError } = require("../errors/not-found-err");
+const ValidationError = require("../errors/validation-error");
+const NotFoundError = require("../errors/not-found-err");
 const { OK } = require("../utils/constants");
 
 const getCards = (req, res, next) => {

@@ -1,5 +1,6 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+
 const NotFoundError = require("../errors/not-found-err");
 const ValidationError = require("../errors/validation-error");
 const AuthError = require("../errors/auth-error");
