@@ -1,6 +1,7 @@
 const Card = require("../models/card");
 const ValidationError = require("../errors/validation-error");
 const NotFoundError = require("../errors/not-found-err");
+const ForbiddenError = require("../errors/forbidden-error");
 const { OK } = require("../utils/constants");
 
 const getCards = (req, res, next) => {
@@ -36,7 +37,7 @@ const deleteCard = (req, res, next) => {
       }
       if (card.owner.toString() !== req.user._id) {
         next(
-          new ValidationError(
+          new ForbiddenError(
             "Вы не можете удалить карточку другого пользователя"
           )
         );
@@ -88,16 +89,18 @@ const dislikeCard = (req, res, next) => {
     .then((like) => {
       if (!like) {
         next(new NotFoundError("Передан несуществующий id карточки."));
+      } else {
+        res.status(OK).send(like);
       }
-      res.status(OK).send(like);
     })
     .catch((err) => {
       if (err.name === "CastError") {
         next(
           new ValidationError("Переданы некорректные данные для снятии лайка.")
         );
+      } else {
+        next(err);
       }
-      next(err);
     });
 };
 

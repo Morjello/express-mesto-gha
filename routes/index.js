@@ -6,6 +6,7 @@ const cardsRoutes = require("./card");
 const { createUser, login } = require("../controllers/user");
 const NotFoundError = require("../errors/not-found-err");
 const { HTTPSAVE } = require("../utils/constants");
+const errorHandler = require("../middlewares/errors-handler");
 
 // логин
 router.post(
@@ -44,15 +45,12 @@ router.post(
 router.use("/users", auth, userRoutes);
 router.use("/cards", auth, cardsRoutes);
 
+router.use(errors());
+
 router.use((req, res, next) => {
   next(new NotFoundError("Страница не найдена"));
 });
 
-router.use(errors());
-
-router.use((err, req, res, next) => {
-  res.send({ message: err.message });
-  next();
-});
+router.use(errorHandler);
 
 module.exports = router;
