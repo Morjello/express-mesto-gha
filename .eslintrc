@@ -5,6 +5,5 @@
       "quotes": ["error", "double"],
       "comma-dangle": ["error", "only-multiline"],
       "operator-linebreak": ["error", "after"],
-      "multiline": true
     }
   }

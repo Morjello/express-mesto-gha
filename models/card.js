@@ -1,4 +1,6 @@
 const mongoose = require("mongoose");
+const validator = require("validator");
+const { HTTPSAVE } = require("../utils/constants");
 
 const cardSchema = new mongoose.Schema({
   name: {
@@ -10,6 +12,10 @@ const cardSchema = new mongoose.Schema({
   link: {
     type: String,
     required: true,
+    validate: {
+      validator: (v) => HTTPSAVE.test(v),
+      message: "Неправильный формат ссылки",
+    },
   },
   owner: {
     type: mongoose.Schema.Types.ObjectId,
@@ -19,6 +25,7 @@ const cardSchema = new mongoose.Schema({
   likes: {
     type: [mongoose.Schema.Types.ObjectId],
     default: [],
+    ref: "user",
   },
   createAt: {
     type: Date,

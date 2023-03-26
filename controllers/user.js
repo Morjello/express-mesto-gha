@@ -12,12 +12,7 @@ const { OK } = require("../utils/constants");
 const getUsers = (req, res, next) => {
   User.find({})
     .then((users) => res.status(OK).send(users))
-    .catch((err) => {
-      if (err.name === "NotFoundError") {
-        next(new NotFoundError("Пользователи не найдены."));
-      }
-      next(err);
-    });
+    .catch(next);
 };
 
 // получаем пользователя по id
@@ -81,7 +76,7 @@ const createUser = (req, res, next) => {
         next(new ConflictError("Такой пользователь уже есть"));
       }
       if (err.name === "ValidationError") {
-        next(
+        return next(
           new ValidationError(
             "Переданы некорректные данные при обновлении аватара."
           )

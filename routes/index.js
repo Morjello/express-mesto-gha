@@ -9,21 +9,7 @@ const { HTTPSAVE } = require("../utils/constants");
 const errorHandler = require("../middlewares/errors-handler");
 
 // логин
-router.post(
-  "/signin",
-  celebrate({
-    body: Joi.object()
-      .keys({
-        name: Joi.string().min(2).max(30),
-        about: Joi.string().min(2).max(30),
-        avatar: Joi.string().min(2).pattern(HTTPSAVE),
-        email: Joi.string().required().email(),
-        password: Joi.string().required(),
-      })
-      .unknown(true),
-  }),
-  login
-);
+router.post("/signin", login);
 
 // регистрация
 router.post(

@@ -16,7 +16,7 @@ const createCard = (req, res, next) => {
   const owner = req.user._id;
   const { name, link } = req.body;
   Card.create({ name, link, owner })
-    .then((card) => res.status(OK).send(card))
+    .then((card) => res.status(201).send(card))
     .catch((err) => {
       if (err.name === "ValidationError") {
         next(
@@ -33,7 +33,7 @@ const deleteCard = (req, res, next) => {
   Card.findByIdAndDelete(req.params.cardId)
     .then((card) => {
       if (!card) {
-        next(new NotFoundError("Карточка с указанным id не найдена."));
+        return next(new NotFoundError("Карточка с указанным id не найдена."));
       }
       if (card.owner.toString() !== req.user._id) {
         next(
@@ -64,7 +64,7 @@ const likeCard = (req, res, next) => {
   )
     .then((like) => {
       if (!like) {
-        next(new NotFoundError("Передан несуществующий id карточки."));
+        return next(new NotFoundError("Передан несуществующий id карточки."));
       }
       res.status(OK).send(like);
     })
@@ -88,19 +88,17 @@ const dislikeCard = (req, res, next) => {
   )
     .then((like) => {
       if (!like) {
-        next(new NotFoundError("Передан несуществующий id карточки."));
-      } else {
-        res.status(OK).send(like);
+        return next(new NotFoundError("Передан несуществующий id карточки."));
       }
+      res.status(OK).send(like);
     })
     .catch((err) => {
       if (err.name === "CastError") {
         next(
           new ValidationError("Переданы некорректные данные для снятии лайка.")
         );
-      } else {
-        next(err);
       }
+      next(err);
     });
 };
 
