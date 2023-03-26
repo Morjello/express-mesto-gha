@@ -1,6 +1,7 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const path = require("path");
+const bodyParser = require("body-parser");
 const cors = require("cors");
 
 const routes = require("./routes/index");
@@ -15,7 +16,8 @@ mongoose.set("strictQuery", false);
 
 app.use(cors({ origin: "http://localhost:3000" }));
 app.use(express.static(path.join(__dirname, "public")));
-express.json();
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(routes);
 
 app.listen(PORT, () => {
