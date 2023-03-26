@@ -28,10 +28,12 @@ const getUserById = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === "CastError") {
-        next(new ValidationError("Переданы некорректные данные пользователя."));
-      } else {
-        next(err);
+        return next(
+          new ValidationError("Переданы некорректные данные пользователя.")
+        );
       }
+      next(err);
+      return null;
     });
 };
 
@@ -83,6 +85,7 @@ const createUser = (req, res, next) => {
         );
       }
       next(err);
+      return null;
     });
 };
 
@@ -125,13 +128,14 @@ const updateUser = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === "ValidationError") {
-        next(
+        return next(
           new ValidationError(
             "Переданы некорректные данные при обновлении профиля."
           )
         );
       }
       next(err);
+      return null;
     });
 };
 
@@ -145,13 +149,14 @@ const updateUserAvatar = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === "ValidationError") {
-        next(
+        return next(
           new ValidationError(
             "Переданы некорректные данные при обновлении аватара."
           )
         );
       }
       next(err);
+      return null;
     });
 };
 
