@@ -42,17 +42,18 @@ const getUserById = (req, res, next) => {
 
 // получаем текущего пользователя
 const getCurrentUser = (req, res, next) => {
-  User.findById(req.user._id)
-    .then((userData) => {
-      if (!userData) {
+  const currentUser = req.user._id;
+  User.findById(currentUser)
+    .then((user) => {
+      if (!user) {
         throw new NotFoundError("Пользователь не найден.");
       }
-      res.status(OK).send(userData);
+      res.status(OK).send(user);
     })
-    .catch(next);
+    .catch((err) => next(err));
 };
 
-// создаем нового пользователя /sign-up
+// создаем нового пользователя /signup
 const createUser = (req, res, next) => {
   const { name, about, avatar, email, password } = req.body;
   bcrypt
@@ -76,21 +77,21 @@ const createUser = (req, res, next) => {
       });
     })
     .catch((err) => {
-      if (err.code === 1100) {
+      if (err.code === 11000) {
         next(new ConflictError("Такой пользователь уже есть"));
-      } else if (err.name === "ValidationError") {
+      }
+      if (err.name === "ValidationError") {
         next(
           new ValidationError(
             "Переданы некорректные данные при обновлении аватара."
           )
         );
-      } else {
-        next(err);
       }
+      next(err);
     });
 };
 
-// лагинимся /sign-in
+// лагинимся /signin
 const login = (req, res, next) => {
   const { email, password } = req.body;
   User.findOne({ email })
