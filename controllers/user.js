@@ -33,7 +33,6 @@ const getUserById = (req, res, next) => {
         );
       }
       next(err);
-      return null;
     });
 };
 
@@ -85,7 +84,6 @@ const createUser = (req, res, next) => {
         );
       }
       next(err);
-      return null;
     });
 };
 
@@ -135,7 +133,6 @@ const updateUser = (req, res, next) => {
         );
       }
       next(err);
-      return null;
     });
 };
 
@@ -156,7 +153,6 @@ const updateUserAvatar = (req, res, next) => {
         );
       }
       next(err);
-      return null;
     });
 };
 
