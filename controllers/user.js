@@ -74,7 +74,7 @@ const createUser = (req, res, next) => {
     })
     .catch((err) => {
       if (err.code === 11000) {
-        next(new ConflictError("Такой пользователь уже есть"));
+        return next(new ConflictError("Такой пользователь уже есть"));
       }
       if (err.name === "ValidationError") {
         return next(
@@ -104,7 +104,7 @@ const login = (req, res, next) => {
     })
     .then((matched) => {
       if (!matched) {
-        next(new AuthError("Неправильные почта или пароль"));
+        return next(new AuthError("Неправильные почта или пароль"));
       }
     })
     .catch((err) => {

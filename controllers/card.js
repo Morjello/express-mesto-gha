@@ -1,4 +1,5 @@
 const Card = require("../models/card");
+const User = require("../models/user");
 const ValidationError = require("../errors/validation-error");
 const NotFoundError = require("../errors/not-found-err");
 const ForbiddenError = require("../errors/forbidden-error");
@@ -13,13 +14,14 @@ const getCards = (req, res, next) => {
 };
 
 const createCard = (req, res, next) => {
-  const owner = req.user._id;
+  //const owner = req.user._id;
   const { name, link } = req.body;
-  Card.create({ name, link, owner })
-    .then((card) => res.status(201).send(card))
+  Card.create({ name, link })
+    .populate("owner")
+    .then((card) => res.status(201).send({ data: card }))
     .catch((err) => {
       if (err.name === "ValidationError") {
-        next(
+        return next(
           new ValidationError(
             "Переданы некорректные данные при создании карточки."
           )
@@ -36,7 +38,7 @@ const deleteCard = (req, res, next) => {
         return next(new NotFoundError("Карточка с указанным id не найдена."));
       }
       if (card.owner.toString() !== req.user._id) {
-        next(
+        return next(
           new ForbiddenError(
             "Вы не можете удалить карточку другого пользователя"
           )
@@ -46,7 +48,7 @@ const deleteCard = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === "CastError") {
-        next(
+        return next(
           new ValidationError(
             "Переданы некорректные данные для удаления карточки."
           )
@@ -70,7 +72,7 @@ const likeCard = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === "CastError") {
-        next(
+        return next(
           new ValidationError(
             "Переданы некорректные данные для постановки лайка."
           )
@@ -94,7 +96,7 @@ const dislikeCard = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === "CastError") {
-        next(
+        return next(
           new ValidationError("Переданы некорректные данные для снятии лайка.")
         );
       }
