@@ -7,6 +7,7 @@ const { OK } = require("../utils/constants");
 
 const getCards = (req, res, next) => {
   Card.find({})
+    .populate(["owner", "likes"])
     .then((cards) => res.status(OK).send(cards))
     .catch((err) => {
       next(err);
@@ -14,11 +15,10 @@ const getCards = (req, res, next) => {
 };
 
 const createCard = (req, res, next) => {
-  //const owner = req.user._id;
+  const owner = req.user._id;
   const { name, link } = req.body;
-  Card.create({ name, link })
-    .populate("owner")
-    .then((card) => res.status(201).send({ data: card }))
+  Card.create({ name, link, owner })
+    .then((card) => res.status(201).send(card))
     .catch((err) => {
       if (err.name === "ValidationError") {
         return next(

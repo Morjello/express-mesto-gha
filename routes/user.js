@@ -10,7 +10,16 @@ const {
 } = require("../controllers/user");
 
 // получаем всех пользователей
-router.get("/", getUsers);
+router.get(
+  "/",
+  celebrate({
+    body: Joi.object().keys({
+      email: Joi.string().required().email(),
+      password: Joi.string().required(),
+    }),
+  }),
+  getUsers
+);
 
 // получаем пользователя по id
 router.get(
