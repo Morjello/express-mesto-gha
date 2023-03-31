@@ -48,39 +48,40 @@ const getCurrentUser = (req, res, next) => {
 
 // создаем нового пользователя /signup
 const createUser = (req, res, next) => {
-  const { name, about, avatar, email, password } = req.body;
+  const {
+    name,
+    about,
+    avatar,
+    email,
+    password
+  } = req.body;
   bcrypt
     .hash(password, 10)
-    .then((hash) =>
-      User.create({
-        name,
-        about,
-        avatar,
-        email,
-        password: hash,
-      })
-    )
-    .then((user) =>
-      res.status(201).send({
-        name: user.name,
-        about: user.about,
-        avatar: user.avatar,
-        email: user.email,
-        _id: user._id,
-      })
-    )
+    .then((hash) => User.create({
+      name,
+      about,
+      avatar,
+      email,
+      password: hash,
+    }))
+    .then((user) => res.status(201).send({
+      name: user.name,
+      about: user.about,
+      avatar: user.avatar,
+      email: user.email,
+      _id: user._id,
+    }))
     .catch((err) => {
       if (err.code === 11000) {
         return next(new ConflictError("Такой пользователь уже есть"));
-      } else if (err.name === "ValidationError") {
+      } if (err.name === "ValidationError") {
         return next(
           new ValidationError(
             "Переданы некорректные данные при создании пользователя."
           )
         );
-      } else {
-        next(err);
       }
+      next(err);
     });
 };
 

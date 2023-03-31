@@ -1,10 +1,26 @@
 {
-    "extends": "airbnb-base",
-    "rules": {
-      "no-underscore-dangle": ["error", { "allow": ["_id"] }],
-      "quotes": ["error", "double"],
-      "comma-dangle": ["error", "only-multiline"],
-      "operator-linebreak": ["error", "after"],
-      "ObjectExpression": "always"
-    }
+  "extends": "airbnb-base",
+  "rules": {
+    "no-underscore-dangle": [
+      "error",
+      {
+        "allow": [
+          "_id"
+        ]
+      }
+    ],
+    "quotes": [
+      "error",
+      "double"
+    ],
+    "comma-dangle": [
+      "error",
+      "only-multiline"
+    ],
+    "operator-linebreak": [
+      "error",
+      "after"
+    ],
+    "consistent-return": 0
   }
+}
