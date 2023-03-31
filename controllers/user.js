@@ -1,8 +1,8 @@
 const jwt = require("jsonwebtoken");
+const bcrypt = require("bcryptjs");
 
 const NotFoundError = require("../errors/not-found-err");
 const ValidationError = require("../errors/validation-error");
-const AuthError = require("../errors/auth-error");
 const ConflictError = require("../errors/conflict-error");
 const User = require("../models/user");
 const { OK } = require("../utils/constants");
@@ -43,7 +43,7 @@ const getCurrentUser = (req, res, next) => {
       }
       res.status(OK).send(user);
     })
-    .catch((err) => next(err));
+    .catch(next);
 };
 
 // создаем нового пользователя /signup
@@ -143,10 +143,10 @@ const updateUserAvatar = (req, res, next) => {
 
 module.exports = {
   getUsers,
+  getCurrentUser,
   getUserById,
   createUser,
   updateUser,
   updateUserAvatar,
   login,
-  getCurrentUser,
 };

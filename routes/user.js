@@ -3,10 +3,10 @@ const { celebrate, Joi } = require("celebrate");
 const { HTTPSAVE } = require("../utils/constants");
 const {
   getUsers,
+  getCurrentUser,
   getUserById,
   updateUser,
   updateUserAvatar,
-  getCurrentUser,
 } = require("../controllers/user");
 
 // получаем всех пользователей
@@ -21,11 +21,19 @@ router.get(
   getUsers
 );
 
-// получаем пользователя по id
-router.get("/:userId", getUserById);
-
 // получаем данные текущего пользователя
 router.get("/me", getCurrentUser);
+
+// получаем пользователя по id
+router.get(
+  "/:userId",
+  celebrate({
+    params: Joi.object().keys({
+      userId: Joi.string().required().hex().length(24),
+    }),
+  }),
+  getUserById
+);
 
 // обновляем имя и описание пользователя
 router.patch(
