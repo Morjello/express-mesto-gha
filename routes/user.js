@@ -22,15 +22,7 @@ router.get(
 );
 
 // получаем пользователя по id
-router.get(
-  "/:userId",
-  celebrate({
-    params: Joi.object().keys({
-      userId: Joi.string().required().hex().length(24),
-    }),
-  }),
-  getUserById
-);
+router.get("/:userId", getUserById);
 
 // получаем данные текущего пользователя
 router.get("/me", getCurrentUser);

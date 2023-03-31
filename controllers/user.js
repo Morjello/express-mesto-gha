@@ -1,4 +1,3 @@
-const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
 const NotFoundError = require("../errors/not-found-err");
@@ -17,8 +16,7 @@ const getUsers = (req, res, next) => {
 
 // получаем пользователя по id
 const getUserById = (req, res, next) => {
-  const user = req.params.userId;
-  User.findById(user)
+  User.findById(req.params.userId)
     .then((userData) => {
       if (!userData) {
         throw new NotFoundError("Пользователь по указанному _id не найден.");
@@ -38,8 +36,7 @@ const getUserById = (req, res, next) => {
 
 // получаем текущего пользователя
 const getCurrentUser = (req, res, next) => {
-  const currentUser = req.user._id;
-  User.findById(currentUser)
+  User.findById(req.user._id)
     .then((user) => {
       if (!user) {
         throw new NotFoundError("Пользователь не найден.");
@@ -90,26 +87,14 @@ const createUser = (req, res, next) => {
 // лагинимся /signin
 const login = (req, res, next) => {
   const { email, password } = req.body;
-  User.findOne({ email })
-    .select("+password")
+  return User.findUserByCredentials(email, password)
     .then((user) => {
-      if (!user) {
-        throw new AuthError("Неправильные почта или пароль");
-      }
       const token = jwt.sign({ _id: user._id }, "some-secret-key", {
         expiresIn: "7d",
       });
-      res.send({ user, token });
-      return bcrypt.compare(password, user.password);
+      res.send({ token });
     })
-    .then((matched) => {
-      if (!matched) {
-        return next(new AuthError("Неправильные почта или пароль"));
-      }
-    })
-    .catch((err) => {
-      next(err);
-    });
+    .catch(next);
 };
 
 // обновляем инфу о пользователе
